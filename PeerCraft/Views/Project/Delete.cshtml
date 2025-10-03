@@ -1,0 +1,34 @@
+﻿@model PeerCraft.Models.Project
+@{
+    ViewData["Title"] = "Delete Project";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6 text-center">
+
+        <h1 class="h2 mb-3">Delete Project</h1>
+
+        <p class="lead">Are you sure you want to permanently delete this project?</p>
+
+        <p class="fw-bold fs-5 my-4">"@Html.DisplayFor(model => model.Title)"</p>
+
+        <p class="text-danger">
+            <strong>This action cannot be undone.</strong>
+        </p>
+
+        <form asp-action="Delete" class="mt-4">
+            <input type="hidden" asp-for="Id" />
+            <div class="d-flex justify-content-center gap-2">
+                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">
+                    Cancel
+                </a>
+                <button type="submit" class="btn btn-danger btn-icon">
+                    <img src="~/images/trash.svg" class="icon" alt="Delete" style="filter: brightness(0) invert(1);"  />
+                    <span>Yes, Delete Project</span>
+                </button>
+            </div>
+        </form>
+
+    </div>
+</div>
+

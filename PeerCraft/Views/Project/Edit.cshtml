@@ -1,0 +1,68 @@
+﻿@model PeerCraft.ViewModels.EditProjectViewModel
+@{
+    ViewData["Title"] = "Edit Project";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-8">
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-light" title="Back to Project">
+                <img src="~/images/arrow-left.svg" class="icon" alt="Back" />
+            </a>
+            <h1 class="h2 mb-0">@ViewData["Title"]</h1>
+        </div>
+
+        <div class="card">
+            <div class="card-body p-4">
+                <form asp-action="Edit">
+                    <input type="hidden" asp-for="Id" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="mb-4">
+                        <label asp-for="Title" class="form-label">Project Title</label>
+                        <input asp-for="Title" class="form-control form-control-lg" />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Description" class="form-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="5"></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="GitHubLink" class="form-label"></label>
+                        <input asp-for="GitHubLink" class="form-control" />
+                        <span asp-validation-for="GitHubLink" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Technologies</label>
+                        <div class="border rounded p-3 bg-light">
+                            <div class="row">
+                                @for (var i = 0; i < Model.AvailableTechnologies.Count; i++)
+                                {
+                                    <div class="col-md-4 col-sm-6">
+                                        <div class="form-check">
+                                            <input asp-for="AvailableTechnologies[i].IsSelected" type="checkbox" class="form-check-input" id="tech-@(i)" />
+                                            <label class="form-check-label" for="tech-@(i)">@Model.AvailableTechnologies[i].Name</label>
+                                            <input type="hidden" asp-for="AvailableTechnologies[i].Id" />
+                                            <input type="hidden" asp-for="AvailableTechnologies[i].Name" />
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

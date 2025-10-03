@@ -363,6 +363,7 @@ namespace PeerCraft.Controllers
             return RedirectToAction("Details", new { id = projectId });
         }
 
+        // Handles adding new comments to a project
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddComment(int projectId, string content)

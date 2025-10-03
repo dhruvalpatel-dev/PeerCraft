@@ -1,71 +1,78 @@
 # PeerCraft
 
-PeerCraft is a web application built for our Web Application Development course project. The goal is to provide a simple platform for students to manage their group projects. It allows users to create projects, track tasks, add team members, and discuss progress in one place, simulating a real-world collaborative tool.
+A web platform for students to manage, showcase, and get feedback on academic and personal projects. Built with ASP.NET Core MVC, PeerCraft provides a collaborative space to track progress, assign tasks, and discuss ideas.
 
 ---
 
-## Features
+## Core Features
 
-* **User Accounts:** Users can sign up for an account and log in. Passwords are kept secure using BCrypt hashing.
-
-* **Project Creation & Management:** Logged-in users can create new projects, providing a title, description, and an optional GitHub link. The person who creates the project is assigned as the owner.
-
-* **Team Collaboration:** Project owners can add other registered users to their projects by username. They can also remove members. All tasks assigned to a removed member become unassigned.
-
-* **Task Tracking:** Within a project, team members can create tasks, assign them to other members, and set optional due dates. The completion status of each task can be toggled.
-
-* **Dashboard:** Each user has a personal dashboard that shows their overdue and upcoming tasks, projects they own, and projects they are a team member of. It also includes a live feed of recent activity (new comments, completed tasks) from their projects.
-
-* **Project Discovery:** A public "Discover" page lists all projects on the platform. This page includes a feature to filter projects by the technologies they use (e.g., C#, React, Python).
-
-* **Feedback and Discussion:** Every project has its own discussion board where team members can post comments and reply to each other, allowing for feedback and conversation.
+* **User Authentication:** Secure user registration and login system using cookie-based authentication and password hashing.
+* **Project Management:** Users can create, edit, and delete their own projects, providing details like title, description, and a GitHub link.
+* **Team Collaboration:** Project owners can add or remove other users as team members to their projects.
+* **Task Tracking:** Create, assign, and track tasks within each project. The dashboard highlights overdue and upcoming tasks for the logged-in user.
+* **Project Discovery:** A "Discover" page where users can browse all public projects and filter them by the technologies used.
+* **Feedback System:** A complete discussion section on each project page for comments and nested replies.
+* **Dynamic Dashboard:** A personalized dashboard for each user showing their owned projects, team projects, and a recent activity feed from all their projects.
 
 ---
 
-## Technology Used
+## Tech Stack
 
-* **Framework:** ASP.NET Core 3.1 MVC
-* **Data Access:** Entity Framework Core 3.1
-* **Database:** SQL Server (designed for LocalDB)
+* **Framework:** ASP.NET Core 3.1 (MVC)
+* **Database:** Entity Framework Core with SQL Server (LocalDB)
 * **Authentication:** ASP.NET Core Cookie Authentication
-* **Frontend:** Bootstrap 5 for styling and layout.
+* **Password Hashing:** BCrypt.Net-Next
+* **Frontend:** Bootstrap 5, HTML, CSS, JavaScript
 
 ---
 
-## How to Run the Project
+## Getting Started
 
-To set up and run this project on a local machine, follow these steps.
+To run this project locally, follow these steps:
 
-1.  **Prerequisites:**
-    * You need the .NET Core 3.1 SDK installed.
-    * You need an instance of SQL Server running (like LocalDB, which is standard with Visual Studio).
-
-2.  **Clone the Repository:**
+1.  **Clone the repository:**
     ```bash
     git clone [https://github.com/dhruvalpatel-dev/PeerCraft.git](https://github.com/dhruvalpatel-dev/PeerCraft.git)
     cd PeerCraft/PeerCraft
     ```
 
-3.  **Setup the Database:**
-    * Check the connection string in `appsettings.json` to make sure it matches your local SQL Server setup.
-    * Run the database migrations using the Entity Framework Core tools. This will create the database and its tables.
+2.  **Prerequisites:**
+    * Ensure you have the [.NET Core 3.1 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/3.1) installed.
+    * Ensure you have SQL Server (Express or LocalDB) installed.
+
+3.  **Update Database Connection:**
+    * Open `appsettings.json` and verify the `DefaultConnection` connection string points to your SQL Server instance. The default is set to use `(localdb)\mssqllocaldb`.
+
+4.  **Run Database Migrations:**
+    * Open a terminal in the project directory (`PeerCraft/PeerCraft`) and run the following command to create and seed the database:
     ```bash
     dotnet ef database update
     ```
 
-4.  **Run the Application:**
-    * Use the `dotnet run` command to start the web server.
+5.  **Run the application:**
     ```bash
     dotnet run
     ```
-    * The application should now be accessible in your browser at `https://localhost:5001`.
+    The application will be running at `https://localhost:5001`.
 
 ---
 
-## Team Members & Contributions
+## Team Contributions
 
-* **Dhruval Patel**
-    * Responsible for the backend development. This included setting up the database models and DbContext with Entity Framework, building the user authentication system (registration, login, and password hashing), and writing the core C# logic in the controllers for managing projects, tasks, comments, and team members. Also developed the dashboard's data aggregation logic.
+This project was a collaborative effort by:
 
-* **Rudra Dave**
-    * Responsible for the frontend development and UI/UX. This included creating the main site layout, all Razor Views (`.cshtml` files), and styling the application with Bootstrap 5 and custom CSS. Handled the creation of ViewModels to pass data from the controllers to the views and implemented the Discover page with its filtering functionality.
+* **Dhruval Patel** (`dhruvalpatel-dev`)
+    * **Responsibilities:** Backend Architecture & Core Logic.
+    * Designed and implemented the database schema using Entity Framework Core.
+    * Developed the complete user authentication system (registration, login, password hashing).
+    * Implemented the core backend logic for project, task, and team member management in the `ProjectController`.
+    * Built the dynamic user dashboard logic in the `HomeController`.
+    * Implemented the comment and reply system backend.
+
+* **Rudra Dave** (`rudradave490-design`)
+    * **Responsibilities:** UI/UX & Frontend Development.
+    * Designed the overall site layout, navigation, and user interface using `_Layout.cshtml` and Bootstrap 5.
+    * Created the UI and ViewModels for the Project Creation, Details, and Edit pages.
+    * Implemented the "Discover" page functionality, including the controller and view for filtering projects.
+    * Handled all CSS styling and static asset management.
+    * Developed the UI for the user profile page.

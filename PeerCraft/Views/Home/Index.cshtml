@@ -1,8 +1,152 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model PeerCraft.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    var currentUser = User.Identity.Name;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h1 class="page-header">Welcome back, @currentUser!</h1>
+
+<div class="row g-4">
+    <!-- Main Column (Left) -->
+    <div class="col-lg-8">
+        <!-- Action Center -->
+        <div class="card mb-4">
+            <div class="card-header">
+                Your Action Center
+            </div>
+            <div class="card-body">
+                @if (Model.MyOverdueTasks.Any())
+                {
+                    <h5 class="h6 text-danger">Overdue Tasks</h5>
+                    <div class="list-group mb-3">
+                        @foreach (var task in Model.MyOverdueTasks)
+                        {
+                            <a asp-controller="Project" asp-action="Details" asp-route-id="@task.ProjectId" class="list-group-item list-group-item-action overdue-task">
+                                <div class="d-flex align-items-center">
+                                    <img src="~/images/warning.svg" class="icon me-3" alt="Overdue Warning" />
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">@task.Title</h6>
+                                            <small class="text-danger">@((DateTime.Now - task.DueDate.Value).Days) days overdue</small>
+                                        </div>
+                                        <small class="text-muted">in project: @task.Project.Title</small>
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                }
+
+                @if (Model.MyUpcomingTasks.Any())
+                {
+                    <h5 class="h6">Upcoming Tasks</h5>
+                    <div class="list-group">
+                        @foreach (var task in Model.MyUpcomingTasks)
+                        {
+                            <a asp-controller="Project" asp-action="Details" asp-route-id="@task.ProjectId" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">@task.Title</h6>
+                                    @if (task.DueDate.HasValue)
+                                    {
+                                        <small class="text-muted">Due: @task.DueDate.Value.ToShortDateString()</small>
+                                    }
+                                </div>
+                                <small class="text-muted">in project: @task.Project.Title</small>
+                            </a>
+                        }
+                    </div>
+                }
+
+                @if (!Model.MyOverdueTasks.Any() && !Model.MyUpcomingTasks.Any())
+                {
+                    <p class="text-muted text-center p-3">You have no assigned tasks. Great job!</p>
+                }
+            </div>
+        </div>
+
+        <!-- My Projects Overview -->
+        <h2 class="h4 mb-3">My Projects</h2>
+        @if (Model.OwnedProjects.Any())
+        {
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                @foreach (var project in Model.OwnedProjects)
+                {
+                    <partial name="_ProjectCard" model="project" />
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center p-5 border rounded bg-white">
+                <p class="lead text-muted">You haven't created any projects yet.</p>
+                <a asp-controller="Project" asp-action="Create" class="btn btn-primary mt-2">Create your first project</a>
+            </div>
+        }
+
+        <!-- Spacer -->
+        <hr class="my-5" />
+
+        <!-- Team Projects Overview -->
+        <h2 class="h4 mb-3">Team Projects</h2>
+        @if (Model.TeamProjects.Any())
+        {
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                @foreach (var project in Model.TeamProjects)
+                {
+                    <partial name="_ProjectCard" model="project" />
+                }
+            </div>
+        }
+        else
+        {
+            <div class="text-center p-5 border rounded bg-white">
+                <p class="lead text-muted">You are not a member of any team projects yet.</p>
+            </div>
+        }
+    </div>
+
+    <!-- Side Column (Right) -->
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                Recent Activity
+            </div>
+            <div class="card-body">
+                @if (Model.RecentActivities.Any())
+                {
+                    <ul class="list-unstyled">
+                        @foreach (var activity in Model.RecentActivities)
+                        {
+                            <li class="mb-3">
+                                <a href="@activity.LinkUrl" class="text-decoration-none text-dark d-flex align-items-start">
+                                    <div class="activity-icon @activity.IconClass me-3">
+                                        @if (activity.IconClass == "icon-comment")
+                                        {
+                                            <img src="~/images/bubble.svg" class="icon" alt="Comment" />
+                                        }
+                                        else
+                                        {
+                                            <img src="~/images/checkmark-circle.svg" class="icon" alt="Task" />
+                                        }
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="small">
+                                            @Html.Raw(activity.Message) <b>@activity.ProjectTitle</b>
+                                        </div>
+                                        <!-- BUG FIX: Convert to local time before formatting -->
+                                        <small class="text-muted">@activity.ActivityDate.ToLocalTime().ToShortDateString()</small>
+                                    </div>
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted text-center p-3">No recent activity in your projects.</p>
+                }
+            </div>
+        </div>
+    </div>
 </div>
+

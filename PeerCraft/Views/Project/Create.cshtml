@@ -1,0 +1,68 @@
+﻿@model PeerCraft.ViewModels.CreateProjectViewModel
+@{
+    ViewData["Title"] = "Create New Project";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-10 col-xl-8">
+        <h1 class="page-header">@ViewData["Title"]</h1>
+
+        <div class="card">
+            <div class="card-body p-4">
+                <form asp-action="Create">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="mb-4">
+                        <label asp-for="Title" class="form-label">Project Title</label>
+                        <input asp-for="Title" class="form-control form-control-lg" placeholder="e.g., E-commerce Website" />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Description" class="form-label"></label>
+                        <textarea asp-for="Description" class="form-control" rows="5" placeholder="Provide a detailed description of your project..."></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="GitHubLink" class="form-label"></label>
+                        <input asp-for="GitHubLink" class="form-control" placeholder="https://github.com/user/repo" />
+                        <span asp-validation-for="GitHubLink" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">Technologies</label>
+                        <div class="border rounded p-3 bg-light">
+                            <div class="row">
+                                @for (var i = 0; i < Model.AvailableTechnologies.Count; i++)
+                                {
+                                    <div class="col-md-4 col-sm-6">
+                                        <div class="form-check">
+                                            <input asp-for="AvailableTechnologies[i].IsSelected" type="checkbox" class="form-check-input" id="tech-@(i)" />
+                                            <label class="form-check-label" for="tech-@(i)">@Model.AvailableTechnologies[i].Name</label>
+                                            <input type="hidden" asp-for="AvailableTechnologies[i].Id" />
+                                            <input type="hidden" asp-for="AvailableTechnologies[i].Name" />
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="TeamMembers" class="form-label">Add Team Members</label>
+                        <textarea asp-for="TeamMembers" class="form-control" rows="3" placeholder="Enter usernames separated by commas, spaces, or new lines..."></textarea>
+                        <span asp-validation-for="TeamMembers" class="text-danger small"></span>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Create Project</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

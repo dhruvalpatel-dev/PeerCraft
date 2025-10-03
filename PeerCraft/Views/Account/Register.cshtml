@@ -1,0 +1,48 @@
+﻿@model PeerCraft.Dtos.RegisterDto
+@{
+    ViewData["Title"] = "Create Account";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5 col-xl-4">
+        <div class="card shadow-sm">
+            <div class="card-body p-4 p-md-5">
+                <div class="text-center mb-4">
+                    <img src="~/images/logo.svg" alt="PeerCraft Logo" style="width: 48px; height: 48px;" />
+                    <h1 class="h3 mt-2">Create your Account</h1>
+                    <p class="text-muted">Join PeerCraft to collaborate and showcase</p>
+                </div>
+
+                <form asp-action="Register" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Username" class="form-label"></label>
+                        <input asp-for="Username" class="form-control form-control-lg" />
+                        <span asp-validation-for="Username" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control form-control-lg" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Password" class="form-label"></label>
+                        <input asp-for="Password" type="password" class="form-control form-control-lg" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-primary btn-lg">Register</button>
+                    </div>
+                </form>
+
+                <div class="text-center text-muted">
+                    <small>Already have an account? <a asp-action="Login">Sign in</a></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

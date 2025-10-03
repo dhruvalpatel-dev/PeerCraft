@@ -1,0 +1,318 @@
+﻿@model PeerCraft.ViewModels.ProjectDetailViewModel
+@using System.Security.Claims
+@{
+    ViewData["Title"] = Model.Project.Title;
+    var currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+    var isOwner = Model.Project.OwnerId == currentUserId;
+}
+
+<!-- Page Header -->
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+    <div class="d-flex align-items-center gap-3">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-light" title="Back to Dashboard">
+            <img src="~/images/arrow-left.svg" class="icon" alt="Back" />
+        </a>
+        <div>
+            <h1 class="h2 mb-0">@Model.Project.Title</h1>
+            <small class="text-muted">
+                Owned by <a asp-controller="User" asp-action="Profile" asp-route-id="@Model.Project.Owner.Username">@Model.Project.Owner.Username</a>
+            </small>
+        </div>
+    </div>
+    @if (isOwner)
+    {
+        <div class="d-flex gap-2">
+            <a asp-action="Edit" asp-route-id="@Model.Project.Id" class="btn btn-outline-secondary btn-icon">
+                <img src="~/images/pencil.svg" class="icon" alt="Edit" /> <span>Edit</span>
+            </a>
+            <a asp-action="Delete" asp-route-id="@Model.Project.Id" class="btn btn-danger btn-icon">
+                <img src="~/images/trash.svg" class="icon" alt="Delete" style="filter: brightness(0) invert(1);" /> <span>Delete</span>
+            </a>
+        </div>
+    }
+</div>
+
+
+<div class="row g-4">
+    <!-- Left Column -->
+    <div class="col-lg-8">
+        <!-- Description Card -->
+        <div class="card mb-4">
+            <div class="card-body p-4">
+                <h5 class="card-title">Description</h5>
+                <p class="card-text text-muted">@Model.Project.Description</p>
+            </div>
+        </div>
+
+        <!-- Tasks Card -->
+        <div class="card">
+            <div class="card-body p-4">
+                <h5 class="card-title mb-3">Tasks (@Model.Tasks.Count(t => t.IsCompleted) of @Model.Tasks.Count())</h5>
+                <div class="progress mb-4" style="height: 1rem;">
+                    <div class="progress-bar" role="progressbar" style="width: @Model.ProgressPercentage.ToString("0")%;" aria-valuenow="@Model.ProgressPercentage">@Model.ProgressPercentage.ToString("0")%</div>
+                </div>
+
+                @if (Model.IsCurrentUserTeamMember)
+                {
+                    <form asp-action="AddTask" method="post" class="mb-3">
+                        <input type="hidden" asp-for="AddTaskForm.ProjectId" />
+                        <div class="input-group">
+                            <input asp-for="AddTaskForm.Title" class="form-control" placeholder="Add a new task..." required />
+                            <input asp-for="AddTaskForm.DueDate" type="date" class="form-control" title="Optional Due Date" style="max-width: 150px;" />
+                            <select asp-for="AddTaskForm.AssigneeId" asp-items="@(new SelectList(Model.TeamMembers, "Id", "Username"))" class="form-select" style="max-width: 150px;">
+                                <option value="">Assign To...</option>
+                            </select>
+                            <button class="btn btn-primary btn-icon" type="submit">
+                                <img src="~/images/plus.svg" class="icon" alt="Add" />
+                            </button>
+                        </div>
+                    </form>
+                }
+
+                <ul class="list-group list-group-flush mt-3">
+                    @foreach (var task in Model.Tasks)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-3 @(task.IsCompleted ? "opacity-50" : "")">
+                            <div class="d-flex align-items-center">
+                                @if (Model.IsCurrentUserTeamMember)
+                                {
+                                    <form asp-action="ToggleTaskStatus" asp-route-id="@task.Id" method="post" class="me-3">
+                                        <input type="checkbox" class="form-check-input" style="cursor: pointer; transform: scale(1.4);" checked="@task.IsCompleted" onchange="this.form.submit()" title="Toggle complete" />
+                                    </form>
+                                }
+                                else
+                                {
+                                    <input type="checkbox" class="form-check-input me-3" style="transform: scale(1.4);" checked="@task.IsCompleted" disabled />
+                                }
+                                <div>
+                                    <span class="@(task.IsCompleted ? "text-decoration-line-through" : "")">@task.Title</span>
+                                    @if (task.DueDate.HasValue)
+                                    {
+                                        <div class="text-muted small">Due: @task.DueDate.Value.ToShortDateString()</div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                @if (task.Assignee != null)
+                                {
+                                    <span class="badge border bg-light text-dark rounded-pill fw-normal">@task.Assignee.Username</span>
+                                }
+                                @if (Model.IsCurrentUserTeamMember)
+                                {
+                                    <form asp-action="DeleteTask" asp-route-id="@task.Id" method="post" onsubmit="return confirm('Delete this task?');">
+                                        <button type="submit" class="btn btn-sm btn-light border-0 btn-task-delete" title="Delete Task">
+                                            <img src="~/images/trash.svg" class="icon" alt="Delete" />
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </li>
+                    }
+                    @if (!Model.Tasks.Any())
+                    {
+                        <li class="list-group-item text-center text-muted py-4">No tasks have been added yet.</li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column -->
+    <div class="col-lg-4">
+        <!-- Meta Info Card -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Technologies</h5>
+                <div class="mt-3">
+                    @if (Model.Technologies.Count() == 0)
+                    {
+                        <p class="card-text text-muted">No technologies added!</p>
+                    }
+                    @if (Model.Technologies.Count() > 0)
+                    {
+                        @foreach (var tech in Model.Technologies)
+                        {
+                            <span class="badge rounded-pill border text-bg-light fw-normal me-1 mb-1 p-2">@tech.Name</span>
+                        }
+                    }
+                </div>
+                @if (!string.IsNullOrEmpty(Model.Project.GitHubLink))
+                {
+                    <div class="d-grid mt-3">
+                        <a href="@Model.Project.GitHubLink" class="btn btn-outline-secondary btn-icon" target="_blank">
+                            <img src="~/images/github-original.svg" class="icon" alt="GitHub" /> GitHub Repository
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Team Card -->
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Team</h5>
+                <ul class="list-group list-group-flush mt-3">
+                    @foreach (var member in Model.TeamMembers)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <a asp-controller="User" asp-action="Profile" asp-route-id="@member.Username" class="text-decoration-none text-dark d-flex align-items-center gap-2">
+                                <img src="~/images/user.svg" class="icon" alt="User" />
+                                <span>@member.Username</span>
+                            </a>
+
+                            @if (isOwner && member.Id != Model.Project.OwnerId)
+                            {
+                                <form asp-action="RemoveTeamMember" asp-route-projectId="@Model.Project.Id" asp-route-userId="@member.Id" method="post">
+                                    <button type="submit" class="btn btn-sm btn-light border-0" title="Remove Member">
+                                        <img src="~/images/close.svg" class="icon" alt="Remove" />
+                                    </button>
+                                </form>
+                            }
+                            else if (member.Id == Model.Project.OwnerId)
+                            {
+                                <span class="badge bg-light text-dark rounded-pill fw-normal">Owner</span>
+                            }
+                        </li>
+                    }
+                </ul>
+                @if (isOwner)
+                {
+                    <hr />
+                    <form asp-action="AddTeamMember" method="post" class="mt-3">
+                        <input type="hidden" name="projectId" value="@Model.Project.Id" />
+                        <label class="form-label small">Add Member</label>
+                        <div class="input-group">
+                            <input type="text" name="username" class="form-control" placeholder="Username" required />
+                            <button type="submit" class="btn btn-outline-primary">Add</button>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Feedback and Comments Section -->
+<div class="row mt-4 justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body p-4">
+                <h5 class="card-title">Feedback & Discussion</h5>
+                <hr />
+                <form asp-action="AddComment" asp-route-projectId="@Model.Project.Id" method="post" class="d-flex gap-3 mb-4">
+                    <textarea name="content" class="form-control" rows="1" placeholder="Leave a comment..."></textarea>
+                    <button type="submit" class="btn btn-primary btn-icon">
+                        <img src="~/images/send.svg" class="icon" alt="Post" />
+                    </button>
+                </form>
+
+                @if (Model.Comments.Any())
+                {
+                    @foreach (var comment in Model.Comments)
+                    {
+                        <div class="d-flex mb-4">
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <a class="fw-bold text-decoration-none" asp-controller="User" asp-action="Profile" asp-route-id="@comment.Author.Username">@comment.Author.Username</a>
+                                        <div class="text-muted small mb-1">@comment.CreatedAt.ToLocalTime().ToString("g")</div>
+                                    </div>
+                                    @if (comment.AuthorId == currentUserId)
+                                    {
+                                        <div class="d-flex gap-2">
+                                            <button onclick="editComment(@comment.Id, '@comment.Content.Replace("'", "\\'")')" class="btn btn-sm btn-light border-0">
+                                                <img src="~/images/pencil.svg" class="icon" alt="Edit" />
+                                            </button>
+                                            <form asp-action="DeleteComment" asp-route-commentId="@comment.Id" asp-route-projectId="@Model.Project.Id" method="post" onsubmit="return confirm('Delete this comment?');">
+                                                <button type="submit" class="btn btn-sm btn-light border-0 btn-task-delete">
+                                                    <img src="~/images/trash.svg" class="icon" alt="Delete" />
+                                                </button>
+                                            </form>
+                                        </div>
+                                    }
+                                </div>
+                                <p class="mt-1 mb-2">@comment.Content</p>
+
+                                <!-- Nested Replies-->
+                                @foreach (var reply in comment.Replies.OrderBy(r => r.CreatedAt))
+                                {
+                                    <div class="d-flex mt-3" style="margin-left: 2.5rem;">
+                                        <div class="flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div>
+                                                    <a class="fw-bold text-decoration-none" asp-controller="User" asp-action="Profile" asp-route-id="@reply.Author.Username">@reply.Author.Username</a>
+                                                    <div class="text-muted small mb-1">@reply.CreatedAt.ToLocalTime().ToString("g")</div>
+                                                </div>
+                                                @if (reply.AuthorId == currentUserId)
+                                                {
+                                                    <div class="d-flex gap-2">
+                                                        <button onclick="editReply(@reply.Id, '@reply.Content.Replace("'", "\\'")')" class="btn btn-sm btn-light border-0">
+                                                            <img src="~/images/pencil.svg" class="icon" alt="Edit" />
+                                                        </button>
+                                                        <form asp-action="DeleteReply" asp-route-replyId="@reply.Id" asp-route-projectId="@Model.Project.Id" method="post" onsubmit="return confirm('Delete this reply?');">
+                                                            <button type="submit" class="btn btn-sm btn-light border-0 btn-task-delete">
+                                                                <img src="~/images/trash.svg" class="icon" alt="Delete" />
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                }
+                                            </div>
+                                            <p class="mt-1">@reply.Content</p>
+                                        </div>
+                                    </div>
+                                }
+                                <!-- Reply Form -->
+                                <form asp-action="AddReply" method="post" class="d-flex gap-2 mt-3" style="margin-left: 2.5rem;">
+                                    <input type="hidden" name="commentId" value="@comment.Id" />
+                                    <input type="hidden" name="projectId" value="@Model.Project.Id" />
+                                    <input type="text" name="content" class="form-control form-control-sm" placeholder="Write a reply..." required />
+                                    <button type="submit" class="btn btn-outline-secondary btn-sm">Reply</button>
+                                </form>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p class="text-center text-muted">No comments yet. Be the first to leave feedback!</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Hidden forms and JavaScript for editing -->
+<form id="editCommentForm" asp-action="EditComment" method="post" class="d-none">
+    <input type="hidden" name="commentId" id="editCommentId" />
+    <input type="hidden" name="projectId" value="@Model.Project.Id" />
+    <input type="hidden" name="content" id="editCommentContent" />
+</form>
+
+<form id="editReplyForm" asp-action="EditReply" method="post" class="d-none">
+    <input type="hidden" name="replyId" id="editReplyId" />
+    <input type="hidden" name="projectId" value="@Model.Project.Id" />
+    <input type="hidden" name="content" id="editReplyContent" />
+</form>
+
+@section Scripts {
+    <script>
+        function editComment(id, currentContent) {
+            const newContent = prompt("Edit your comment:", currentContent);
+            if (newContent && newContent.trim() !== "") {
+                document.getElementById('editCommentId').value = id;
+                document.getElementById('editCommentContent').value = newContent;
+                document.getElementById('editCommentForm').submit();
+            }
+        }
+
+        function editReply(id, currentContent) {
+            const newContent = prompt("Edit your reply:", currentContent);
+            if (newContent && newContent.trim() !== "") {
+                document.getElementById('editReplyId').value = id;
+                document.getElementById('editReplyContent').value = newContent;
+                document.getElementById('editReplyForm').submit();
+            }
+        }
+    </script>
+}
